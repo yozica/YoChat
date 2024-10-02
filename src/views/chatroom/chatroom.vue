@@ -99,8 +99,6 @@ const sendMessage = () => {
 
 const onScroll = (e: Event) => {
   const scrollBar = e.target as HTMLElement;
-  console.dir(scrollBar.scrollTop + scrollBar.offsetHeight);
-  console.dir(contentDom.value?.offsetHeight);
   const content = scrollBar.firstElementChild as HTMLElement;
   if (scrollBar.scrollTop + scrollBar.offsetHeight + 20 < content.offsetHeight) {
     autoScroll.value = false;
