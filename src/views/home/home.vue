@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useMessage } from "naive-ui";
+import type { InputInst } from "naive-ui";
 import { NTabs, NTabPane, NButton, NInput, NSpin } from "naive-ui";
 import { useChatroomStore } from "@/store";
 import socket from "@/socket";
@@ -10,6 +11,7 @@ const chatroomStore = useChatroomStore();
 
 const nickname = ref("");
 const roomNumber = ref("");
+const roomIptRef = ref<InputInst | null>(null);
 
 const creatChat = () => {
   if (nickname.value.trim() === "") {
@@ -26,9 +28,21 @@ const joinChat = () => {
     message.error("请输入昵称");
     return;
   }
-  if (!/^[1-9]\d{2}(-\d{3}){2}$/.test(roomNumber.value)) {
+  if (!/^[1-9]\d{2}(-\d{3}){2}$/.test(roomNumber.value) && !/^[1-9]\d{8}$/.test(roomNumber.value)) {
     message.error("请输入正确的房间号格式");
     return;
+  }
+  if (/^[1-9]\d{8}$/.test(roomNumber.value)) {
+    const room = roomNumber.value.split("");
+    let res = "";
+    for (let i = 0; i < room.length; i++) {
+      if (i === 2 || i === 5) {
+        res += room[i] + "-";
+      } else {
+        res += room[i];
+      }
+    }
+    roomNumber.value = res;
   }
   socket.emit("onJoinRoom", {
     nickname: nickname.value,
@@ -59,6 +73,7 @@ const errorToReconnect = () => {
               placeholder="定义一个昵称"
               v-model:value="nickname"
               style="margin-bottom: 10px"
+              @keyup.enter="creatChat"
             />
             <n-button type="primary" style="width: 100%" @click="creatChat">创建聊天室</n-button>
           </n-tab-pane>
@@ -67,11 +82,14 @@ const errorToReconnect = () => {
               placeholder="定义一个昵称"
               v-model:value="nickname"
               style="margin-bottom: 10px"
+              @keyup.enter="() => roomIptRef?.focus()"
             />
             <n-input
+              ref="roomIptRef"
               placeholder="你想加入哪个房间"
               v-model:value="roomNumber"
               style="margin-bottom: 10px"
+              @keyup.enter="joinChat"
             />
             <n-button type="primary" style="width: 100%" @click="joinChat">加入聊天室</n-button>
           </n-tab-pane>
