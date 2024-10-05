@@ -33,6 +33,9 @@ importers:
       '@types/node':
         specifier: ^20.14.5
         version: 20.16.5
+      '@vicons/ionicons4':
+        specifier: ^0.12.0
+        version: 0.12.0
       '@vicons/ionicons5':
         specifier: ^0.12.0
         version: 0.12.0
@@ -593,6 +596,9 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  '@vicons/ionicons4@0.12.0':
+    resolution: {integrity: sha512-i+7YwlpCrqD6m9esbZLy1bpVQlh4CKugtS3OzgfNw6BLTQQK6HT7drktaJgcESj/BTr4avdNbAtMQXx56wSVMg==}
 
   '@vicons/ionicons5@0.12.0':
     resolution: {integrity: sha512-Iy1EUVRpX0WWxeu1VIReR1zsZLMc4fqpt223czR+Rpnrwu7pt46nbnC2ycO7ItI/uqDLJxnbcMC7FujKs9IfFA==}
@@ -2048,6 +2054,8 @@ snapshots:
       eslint-visitor-keys: 3.4.3
 
   '@ungap/structured-clone@1.2.0': {}
+
+  '@vicons/ionicons4@0.12.0': {}
 
   '@vicons/ionicons5@0.12.0': {}
 
