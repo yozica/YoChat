@@ -24,6 +24,7 @@ export const useChatroomStore = defineStore("chatroom", () => {
 
   const sending = ref(false);
 
+  const roomMembers = new Set<string>();
   const chatCache = ref<ChatCacheType[]>([]);
 
   return {
@@ -36,6 +37,7 @@ export const useChatroomStore = defineStore("chatroom", () => {
     },
     userInfo,
     sending,
+    roomMembers,
     chatCache
   };
 });

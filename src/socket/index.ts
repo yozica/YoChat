@@ -8,7 +8,9 @@ import type { NaiveWindow, ResType } from "@/types/common";
 const chatroomStore = useChatroomStore();
 
 // 配置自动重连选项
-const socket: Socket = io("http://192.168.2.100:3000", {
+const baseURL = "http://192.168.2.100:8080";
+// const baseURL = "https://www.yozica.top:8080";
+const socket: Socket = io(baseURL, {
   reconnection: true, // 启用自动重连
   reconnectionAttempts: 10, // 最大重连次数
   reconnectionDelay: 1000, // 每次重连间隔时间（毫秒）
@@ -81,6 +83,7 @@ socket.on(
       roomNumber: res.data.roomNumber
     };
     chatroomStore.chatCache = res.data.chatCache;
+    chatroomStore.roomMembers.add(res.data.nickname);
     const userinfo = lzString.compressToBase64(
       JSON.stringify({
         nickname: res.data.nickname,
@@ -114,6 +117,17 @@ socket.on(
       roomNumber: res.data.roomNumber
     };
     chatroomStore.chatCache = res.data.chatCache;
+    chatroomStore.roomMembers.add(res.data.nickname);
+    res.data.chatCache.forEach((item) => {
+      if (
+        item.type === "userAction" &&
+        (item.data === "创建了聊天室" || item.data === "加入了聊天室")
+      ) {
+        chatroomStore.roomMembers.add(item.nickname);
+      } else if (item.type === "userAction" && item.data === "离开了聊天室") {
+        chatroomStore.roomMembers.delete(item.nickname);
+      }
+    });
     const userinfo = lzString.compressToBase64(
       JSON.stringify({
         nickname: res.data.nickname,
@@ -128,11 +142,13 @@ socket.on(
 // 有新的成员加入聊天室 - onNewUserJoin
 socket.on("onNewUserJoin", (res: ResType<ChatCacheType>) => {
   chatroomStore.chatCache.push(res.data);
+  chatroomStore.roomMembers.add(res.data.nickname);
 });
 
 // 有成员离开聊天室 - onUserOff
 socket.on("onUserOff", (res: ResType<ChatCacheType>) => {
   chatroomStore.chatCache.push(res.data);
+  chatroomStore.roomMembers.delete(res.data.nickname);
 });
 
 // 接收其他成员发来的消息
