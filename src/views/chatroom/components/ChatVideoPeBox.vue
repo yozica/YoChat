@@ -14,7 +14,9 @@ defineProps<{
     class="chat-video-pe"
     :style="`height: ${show ? (mini ? '20px' : 'calc(56.25vw + 20px)') : '0'}`"
   >
-    <div class="video-container" :style="`flex: ${mini ? '0' : '1'}`"></div>
+    <div class="video-container" :style="`flex: ${mini ? '0' : '1'}`">
+      <slot></slot>
+    </div>
     <n-button class="switch-mini" @click="mini = !mini">
       <n-icon
         :style="`transition: transform 0.3s; transform: ${mini ? 'rotate(180deg)' : 'rotate(0)'}`"
