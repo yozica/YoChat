@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, onUnmounted } from "vue";
 import { NScrollbar } from "naive-ui";
 import type { ScrollbarInst } from "naive-ui";
 import { useChatroomStore } from "@/store";
@@ -57,6 +57,18 @@ const scrollToBottom = () => {
   });
 };
 
+// 监听聊天面板高度变化 - 让内层滚动区域高度与外层容器一致
+const chatPanelHeight = ref(0);
+const resizeObserver = new ResizeObserver((entry) => {
+  chatPanelHeight.value = entry[0].contentRect.height;
+});
+nextTick(() => {
+  resizeObserver.observe(document.querySelector(".chat-panel") as HTMLElement);
+});
+onUnmounted(() => {
+  resizeObserver.disconnect();
+});
+
 defineExpose({
   scrollToBottom
 });
@@ -66,7 +78,8 @@ defineExpose({
   <div class="chat-panel">
     <n-scrollbar
       ref="scrollBarRef"
-      style="height: calc(100vh - 100px); padding: 10px 20px"
+      class="n-scrollbar-style"
+      :style="`height:${chatPanelHeight}px`"
       :onScroll="
         (e) => {
           onScroll(e);
@@ -100,8 +113,17 @@ defineExpose({
 
 <style lang="scss" scoped>
 .chat-panel {
+  position: relative;
   width: 100%;
   flex: 1;
+
+  ::v-deep(.n-scrollbar-style) {
+    transition: height 0.3s;
+    padding: 10px 20px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+  }
 
   .item + .item {
     margin-top: 10px;

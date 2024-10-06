@@ -1,15 +1,26 @@
 <script lang="ts" setup>
+import { provide, ref } from "vue";
 import { useParams } from "./utils/hooks";
 import ChatHeader from "./components/ChatHeader.vue";
 import ChatPanel from "./components/ChatPanel.vue";
 import ChatFooter from "./components/ChatFooter.vue";
+import ChatVideo from "./components/ChatVideo.vue";
 
 const { params } = useParams();
+
+const showVideo = ref(false);
+provide("showVideo", {
+  showVideo,
+  switch() {
+    showVideo.value = !showVideo.value;
+  }
+});
 </script>
 
 <template>
   <div class="chatroom_container">
     <ChatHeader :roomNumber="params.roomNumber" />
+    <ChatVideo :show="showVideo" />
     <ChatPanel ref="chatPanelRef" />
     <ChatFooter />
   </div>
