@@ -53,27 +53,18 @@ watch(mini, (newValue) => {
 // 定义拖拽改变视频窗口尺寸
 const sizeCache = ref({
   begin: false,
+  from: "",
   oldWidth: 0,
   oldHeight: 0,
   startX: 0,
   startY: 0
 });
-const onSizeMouseDown = (e: MouseEvent) => {
-  if (
-    [
-      "top-left",
-      "top-center",
-      "top-right",
-      "center-left",
-      "center-right",
-      "bottom-left",
-      "bottom-center",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
-  ) {
+const onSizeMouseDownX = (e: MouseEvent) => {
+  if (["center-left", "center-right"].includes((e.target as HTMLElement).className)) {
     // 鼠标按下 - 记录初始值
     sizeCache.value = {
       begin: true,
+      from: "x",
       oldWidth: boxInfo.value.width,
       oldHeight: boxInfo.value.height,
       startX: e.clientX,
@@ -81,43 +72,62 @@ const onSizeMouseDown = (e: MouseEvent) => {
     };
   }
 };
-const onSizeMouseMoveX = (e: MouseEvent) => {
+const onSizeMouseDownY = (e: MouseEvent) => {
+  if (["top-center", "bottom-center"].includes((e.target as HTMLElement).className)) {
+    // 鼠标按下 - 记录初始值
+    sizeCache.value = {
+      begin: true,
+      from: "y",
+      oldWidth: boxInfo.value.width,
+      oldHeight: boxInfo.value.height,
+      startX: e.clientX,
+      startY: e.clientY
+    };
+  }
+};
+const onSizeMouseDownXY = (e: MouseEvent) => {
   if (
-    [
-      "top-left",
-      "top-right",
-      "center-left",
-      "center-right",
-      "bottom-left",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
+    ["top-left", "top-right", "bottom-left", "bottom-right"].includes(
+      (e.target as HTMLElement).className
+    )
   ) {
-    // 鼠标移动时，计算 x轴 移动距离
-    if (sizeCache.value.begin) {
+    // 鼠标按下 - 记录初始值
+    sizeCache.value = {
+      begin: true,
+      from: "xy",
+      oldWidth: boxInfo.value.width,
+      oldHeight: boxInfo.value.height,
+      startX: e.clientX,
+      startY: e.clientY
+    };
+  }
+};
+const onSizeMouseMove = (e: MouseEvent) => {
+  if (sizeCache.value.begin) {
+    if (sizeCache.value.from === "x") {
+      // 鼠标移动时，计算 x轴 移动距离
       const moveX = e.clientX - sizeCache.value.startX;
       const newWidth = sizeCache.value.oldWidth + moveX;
       const newHeight = (newWidth * 9) / 16 + 30;
       changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
-    }
-  }
-};
-const onSizeMouseMoveY = (e: MouseEvent) => {
-  if (
-    [
-      "top-left",
-      "top-center",
-      "top-right",
-      "bottom-left",
-      "bottom-center",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
-  ) {
-    // 鼠标移动时，计算 y轴 移动距离
-    if (sizeCache.value.begin) {
+    } else if (sizeCache.value.from === "y") {
+      // 鼠标移动时，计算 y轴 移动距离
       const moveY = e.clientY - sizeCache.value.startY;
       const newHeight = sizeCache.value.oldHeight + moveY;
       const newWidth = ((newHeight - 30) * 16) / 9;
       changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+    } else if (sizeCache.value.from === "xy") {
+      const moveX = e.clientX - sizeCache.value.startX;
+      const moveY = e.clientY - sizeCache.value.startY;
+      if (moveX < moveY) {
+        const newHeight = sizeCache.value.oldHeight + moveY;
+        const newWidth = ((newHeight - 30) * 16) / 9;
+        changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+      } else {
+        const newWidth = sizeCache.value.oldWidth + moveX;
+        const newHeight = (newWidth * 9) / 16 + 30;
+        changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+      }
     }
   }
 };
@@ -125,28 +135,19 @@ const onSizeMouseUp = () => {
   // 鼠标抬起 - 初始化缓存
   sizeCache.value = {
     begin: false,
+    from: "",
     oldWidth: 0,
     oldHeight: 0,
     startX: 0,
     startY: 0
   };
 };
-const onSizeTouchStart = (e: TouchEvent) => {
-  if (
-    [
-      "top-left",
-      "top-center",
-      "top-right",
-      "center-left",
-      "center-right",
-      "bottom-left",
-      "bottom-center",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
-  ) {
+const onSizeTouchStartX = (e: TouchEvent) => {
+  if (["center-left", "center-right"].includes((e.target as HTMLElement).className)) {
     // 手指按下 - 记录初始值
     sizeCache.value = {
       begin: true,
+      from: "x",
       oldWidth: boxInfo.value.width,
       oldHeight: boxInfo.value.height,
       startX: e.changedTouches[0].clientX,
@@ -154,43 +155,62 @@ const onSizeTouchStart = (e: TouchEvent) => {
     };
   }
 };
-const onSizeTouchMoveX = (e: TouchEvent) => {
+const onSizeTouchStartY = (e: TouchEvent) => {
+  if (["top-center", "bottom-center"].includes((e.target as HTMLElement).className)) {
+    // 手指按下 - 记录初始值
+    sizeCache.value = {
+      begin: true,
+      from: "y",
+      oldWidth: boxInfo.value.width,
+      oldHeight: boxInfo.value.height,
+      startX: e.changedTouches[0].clientX,
+      startY: e.changedTouches[0].clientY
+    };
+  }
+};
+const onSizeTouchStartXY = (e: TouchEvent) => {
   if (
-    [
-      "top-left",
-      "top-right",
-      "center-left",
-      "center-right",
-      "bottom-left",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
+    ["top-left", "top-right", "bottom-left", "bottom-right"].includes(
+      (e.target as HTMLElement).className
+    )
   ) {
-    // 手指移动时，计算 x轴 移动距离
-    if (sizeCache.value.begin) {
+    // 手指按下 - 记录初始值
+    sizeCache.value = {
+      begin: true,
+      from: "xy",
+      oldWidth: boxInfo.value.width,
+      oldHeight: boxInfo.value.height,
+      startX: e.changedTouches[0].clientX,
+      startY: e.changedTouches[0].clientY
+    };
+  }
+};
+const onSizeTouchMove = (e: TouchEvent) => {
+  if (sizeCache.value.begin) {
+    if (sizeCache.value.from === "x") {
+      // 鼠标移动时，计算 x轴 移动距离
       const moveX = e.changedTouches[0].clientX - sizeCache.value.startX;
       const newWidth = sizeCache.value.oldWidth + moveX;
       const newHeight = (newWidth * 9) / 16 + 30;
       changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
-    }
-  }
-};
-const onSizeTouchMoveY = (e: TouchEvent) => {
-  if (
-    [
-      "top-left",
-      "top-center",
-      "top-right",
-      "bottom-left",
-      "bottom-center",
-      "bottom-right"
-    ].includes((e.target as HTMLElement).className)
-  ) {
-    // 手指移动时，计算 y轴 移动距离
-    if (sizeCache.value.begin) {
+    } else if (sizeCache.value.from === "y") {
+      // 鼠标移动时，计算 y轴 移动距离
       const moveY = e.changedTouches[0].clientY - sizeCache.value.startY;
       const newHeight = sizeCache.value.oldHeight + moveY;
       const newWidth = ((newHeight - 30) * 16) / 9;
       changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+    } else if (sizeCache.value.from === "xy") {
+      const moveX = e.changedTouches[0].clientX - sizeCache.value.startX;
+      const moveY = e.changedTouches[0].clientY - sizeCache.value.startY;
+      if (moveX < moveY) {
+        const newHeight = sizeCache.value.oldHeight + moveY;
+        const newWidth = ((newHeight - 30) * 16) / 9;
+        changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+      } else {
+        const newWidth = sizeCache.value.oldWidth + moveX;
+        const newHeight = (newWidth * 9) / 16 + 30;
+        changeBoxInfo(boxInfo.value.left, boxInfo.value.top, newWidth, newHeight);
+      }
     }
   }
 };
@@ -198,6 +218,7 @@ const onSizeTouchEnd = () => {
   // 手指抬起 - 初始化缓存
   sizeCache.value = {
     begin: false,
+    from: "",
     oldWidth: 0,
     oldHeight: 0,
     startX: 0,
@@ -227,18 +248,16 @@ const onPositionMouseDown = (e: MouseEvent) => {
   }
 };
 const onPositionMouseMove = (e: MouseEvent) => {
-  if ((e.target as HTMLElement).className === "chat-video-pc--position") {
-    // 鼠标移动 - 修改位置
-    if (positionCache.value.begin && !sizeCache.value.begin) {
-      const moveX = e.clientX - positionCache.value.startX;
-      const moveY = e.clientY - positionCache.value.startY;
-      changeBoxInfo(
-        positionCache.value.oldLeft + moveX,
-        positionCache.value.oldTop + moveY,
-        boxInfo.value.width,
-        boxInfo.value.height
-      );
-    }
+  // 鼠标移动 - 修改位置
+  if (positionCache.value.begin && !sizeCache.value.begin) {
+    const moveX = e.clientX - positionCache.value.startX;
+    const moveY = e.clientY - positionCache.value.startY;
+    changeBoxInfo(
+      positionCache.value.oldLeft + moveX,
+      positionCache.value.oldTop + moveY,
+      boxInfo.value.width,
+      boxInfo.value.height
+    );
   }
 };
 const onPositionMouseUp = () => {
@@ -264,18 +283,16 @@ const onPositionTouchStart = (e: TouchEvent) => {
   }
 };
 const onPositionTouchMove = (e: TouchEvent) => {
-  if ((e.target as HTMLElement).className === "chat-video-pc--position") {
-    // 手指移动 - 修改位置
-    if (positionCache.value.begin && !sizeCache.value.begin) {
-      const moveX = e.changedTouches[0].clientX - positionCache.value.startX;
-      const moveY = e.changedTouches[0].clientY - positionCache.value.startY;
-      changeBoxInfo(
-        positionCache.value.oldLeft + moveX,
-        positionCache.value.oldTop + moveY,
-        boxInfo.value.width,
-        boxInfo.value.height
-      );
-    }
+  // 手指移动 - 修改位置
+  if (positionCache.value.begin && !sizeCache.value.begin) {
+    const moveX = e.changedTouches[0].clientX - positionCache.value.startX;
+    const moveY = e.changedTouches[0].clientY - positionCache.value.startY;
+    changeBoxInfo(
+      positionCache.value.oldLeft + moveX,
+      positionCache.value.oldTop + moveY,
+      boxInfo.value.width,
+      boxInfo.value.height
+    );
   }
 };
 const onPositionTouchEnd = () => {
@@ -291,15 +308,16 @@ const onPositionTouchEnd = () => {
 
 // 窗口操作统一挂载
 // 挂载尺寸监听事件
-window.addEventListener("mousedown", onSizeMouseDown);
-window.addEventListener("mousemove", onSizeMouseMoveX);
-window.addEventListener("mousemove", onSizeMouseMoveY);
+window.addEventListener("mousedown", onSizeMouseDownX);
+window.addEventListener("mousedown", onSizeMouseDownY);
+window.addEventListener("mousedown", onSizeMouseDownXY);
+window.addEventListener("mousemove", onSizeMouseMove);
 window.addEventListener("mouseup", onSizeMouseUp);
-window.addEventListener("touchstart", onSizeTouchStart);
-window.addEventListener("touchmove", onSizeTouchMoveX);
-window.addEventListener("touchmove", onSizeTouchMoveY);
+window.addEventListener("touchstart", onSizeTouchStartX);
+window.addEventListener("touchstart", onSizeTouchStartY);
+window.addEventListener("touchstart", onSizeTouchStartXY);
+window.addEventListener("touchmove", onSizeTouchMove);
 window.addEventListener("touchend", onSizeTouchEnd);
-
 // 挂载位置监听事件
 window.addEventListener("mousedown", onPositionMouseDown);
 window.addEventListener("mousemove", onPositionMouseMove);
@@ -332,13 +350,15 @@ function debounce(fn: () => void, delay: number) {
 // 组件卸载时关闭侦听
 onUnmounted(() => {
   // 关闭尺寸监听事件
-  window.removeEventListener("mousedown", onSizeMouseDown);
-  window.removeEventListener("mousemove", onSizeMouseMoveX);
-  window.removeEventListener("mousemove", onSizeMouseMoveY);
+  window.removeEventListener("mousedown", onSizeMouseDownX);
+  window.removeEventListener("mousedown", onSizeMouseDownY);
+  window.removeEventListener("mousedown", onSizeMouseDownXY);
+  window.removeEventListener("mousemove", onSizeMouseMove);
   window.removeEventListener("mouseup", onSizeMouseUp);
-  window.removeEventListener("touchstart", onSizeTouchStart);
-  window.removeEventListener("touchmove", onSizeTouchMoveX);
-  window.removeEventListener("touchmove", onSizeTouchMoveY);
+  window.removeEventListener("touchstart", onSizeTouchStartX);
+  window.removeEventListener("touchstart", onSizeTouchStartY);
+  window.removeEventListener("touchstart", onSizeTouchStartXY);
+  window.removeEventListener("touchmove", onSizeTouchMove);
   window.removeEventListener("touchend", onSizeTouchEnd);
   // 关闭位置监听事件
   window.removeEventListener("mousedown", onPositionMouseDown);
