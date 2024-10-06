@@ -16,6 +16,7 @@ const chatPanelRef = useTemplateRef<InstanceType<typeof ChatPanel>>("chatPanelRe
 
 const sendMessage = () => {
   if (inputValue.value.trim() === "") {
+    inputRef.value?.focus(); // 让输入框保持聚焦
     message.error("不能发送空消息");
     return;
   }
