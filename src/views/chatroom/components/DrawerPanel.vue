@@ -11,6 +11,11 @@ const showVideo = inject<{
   showVideo: Ref<boolean>;
   switch: () => void;
 }>("showVideo");
+const showVideoLog = inject<{
+  showVideoLog: Ref<boolean>;
+  show: () => void;
+  close: () => void;
+}>("showVideoLog");
 
 const show = defineModel<boolean>("show");
 
@@ -22,6 +27,15 @@ withDefaults(
     roomNumber: "正在加载房间信息"
   }
 );
+
+const openVideoLog = () => {
+  if (showVideoLog?.showVideoLog.value) {
+    showVideoLog.close();
+  } else {
+    showVideoLog?.show();
+  }
+  show.value = false;
+};
 
 const openVideo = () => {
   showVideo?.switch();
@@ -73,6 +87,7 @@ onUnmounted(() => {
               <n-button @click="openVideo">
                 {{ showVideo?.showVideo.value ? "关闭" : "打开" }}观影室
               </n-button>
+              <n-button @click="openVideoLog">让我看看观影室里有什么动静</n-button>
               <n-button @click="clearVideoCache" v-if="drawerWidth === 500">
                 什么？你说你找不到视频框了
               </n-button>

@@ -1,10 +1,16 @@
 <script lang="ts" setup>
-import { ref, watch, nextTick, onUnmounted } from "vue";
+import { ref, watch, nextTick, onUnmounted, inject, type Ref } from "vue";
 import { NScrollbar } from "naive-ui";
 import type { ScrollbarInst } from "naive-ui";
 import { useChatroomStore } from "@/store";
 
 const chatroomStore = useChatroomStore();
+
+const showVideoLog = inject<{
+  showVideoLog: Ref<boolean>;
+  show: () => void;
+  close: () => void;
+}>("showVideoLog");
 
 const scrollBarRef = ref<ScrollbarInst | null>(null);
 
@@ -87,12 +93,31 @@ defineExpose({
       "
     >
       <div class="item" v-for="(item, index) in chatroomStore.chatCache" :key="index">
+        <!-- 用户行为 - userAction -->
         <div v-if="item.type === 'userAction'" class="user-action">
           {{ item.nickname + " " + item.data }}
         </div>
+        <!-- 普通消息 - text -->
         <div
           v-if="item.type === 'text'"
           class="text"
+          :class="
+            item.clientId === chatroomStore.userInfo.clientId ||
+            item.nickname === chatroomStore.userInfo.nickname
+              ? 'myself'
+              : ''
+          "
+        >
+          <div class="name">{{ item.nickname }}</div>
+          <div class="message">
+            {{ item.data }}
+          </div>
+          <div class="time">{{ item.time }}</div>
+        </div>
+        <!-- 观影室消息 - videoAction -->
+        <div
+          v-if="item.type === 'videoAction' && showVideoLog?.showVideoLog.value"
+          class="text videoAction"
           :class="
             item.clientId === chatroomStore.userInfo.clientId ||
             item.nickname === chatroomStore.userInfo.nickname

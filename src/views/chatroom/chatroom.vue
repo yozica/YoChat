@@ -15,6 +15,19 @@ provide("showVideo", {
     showVideo.value = !showVideo.value;
   }
 });
+
+const showVideoLog = ref<boolean>((localStorage.getItem("showVideoLog") || "false") === "true");
+provide("showVideoLog", {
+  showVideoLog,
+  show: () => {
+    showVideoLog.value = true;
+    localStorage.setItem("showVideoLog", "true");
+  },
+  close: () => {
+    showVideoLog.value = false;
+    localStorage.removeItem("showVideoLog");
+  }
+});
 </script>
 
 <template>
