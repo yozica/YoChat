@@ -8,8 +8,7 @@ import type { NaiveWindow, ResType } from "@/types/common";
 const chatroomStore = useChatroomStore();
 
 // 配置自动重连选项
-const baseURL = "http://192.168.2.100:8080";
-// const baseURL = "https://www.yozica.top:8080";
+const baseURL = import.meta.env.VITE_SOCKET_URL;
 const socket: Socket = io(baseURL, {
   reconnection: true, // 启用自动重连
   reconnectionAttempts: 10, // 最大重连次数
