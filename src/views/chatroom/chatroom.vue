@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { provide, ref } from "vue";
+import { ref, provide, useTemplateRef } from "vue";
 import { useParams } from "./utils/hooks";
 import ChatHeader from "./components/ChatHeader.vue";
 import ChatPanel from "./components/ChatPanel.vue";
@@ -7,6 +7,8 @@ import ChatFooter from "./components/ChatFooter.vue";
 import ChatVideo from "./components/ChatVideo.vue";
 
 const { params } = useParams();
+
+const chatPanelRef = useTemplateRef<InstanceType<typeof ChatPanel>>("chatPanelRef");
 
 const showVideo = ref(false);
 provide("showVideo", {
@@ -35,7 +37,7 @@ provide("showVideoLog", {
     <ChatHeader :roomNumber="params.roomNumber" />
     <ChatVideo :show="showVideo" />
     <ChatPanel ref="chatPanelRef" />
-    <ChatFooter />
+    <ChatFooter :chatPanelRef="chatPanelRef" />
   </div>
 </template>
 

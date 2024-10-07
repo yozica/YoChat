@@ -25,18 +25,22 @@ nextTick(() => {
   }
 });
 
+const scrollToBottom = () => {
+  nextTick(() => {
+    const y = contentDom.value?.offsetHeight || 0 - (scrollDom.value?.offsetHeight || 0);
+    scrollBarRef.value?.scrollBy({
+      left: 0,
+      top: y,
+      behavior: "smooth"
+    });
+  });
+};
+
 watch(
   () => chatroomStore.chatCache,
   () => {
     if (autoScroll.value) {
-      nextTick(() => {
-        const y = contentDom.value?.offsetHeight || 0 - (scrollDom.value?.offsetHeight || 0);
-        scrollBarRef.value?.scrollBy({
-          left: 0,
-          top: y,
-          behavior: "smooth"
-        });
-      });
+      scrollToBottom();
     }
   },
   { immediate: true, deep: true }
@@ -50,17 +54,6 @@ const onScroll = (e: Event) => {
   } else {
     autoScroll.value = true;
   }
-};
-
-const scrollToBottom = () => {
-  nextTick(() => {
-    const y = contentDom.value?.offsetHeight || 0 - (scrollDom.value?.offsetHeight || 0);
-    scrollBarRef.value?.scrollBy({
-      left: 0,
-      top: y,
-      behavior: "smooth"
-    });
-  });
 };
 
 // 监听聊天面板高度变化 - 让内层滚动区域高度与外层容器一致

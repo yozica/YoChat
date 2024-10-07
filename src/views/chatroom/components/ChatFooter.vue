@@ -7,12 +7,15 @@ import type { InputInst } from "naive-ui";
 import socket from "@/socket";
 import ChatPanel from "./ChatPanel.vue";
 
+const props = defineProps<{
+  chatPanelRef?: InstanceType<typeof ChatPanel> | null;
+}>();
+
 const message = useMessage();
 const chatroomStore = useChatroomStore();
 
 const inputValue = ref("");
 const inputRef = useTemplateRef<InputInst>("inputRef");
-const chatPanelRef = useTemplateRef<InstanceType<typeof ChatPanel>>("chatPanelRef");
 
 const sendMessage = () => {
   if (inputValue.value.trim() === "") {
@@ -34,7 +37,7 @@ const sendMessage = () => {
   });
   inputValue.value = "";
   inputRef.value?.focus(); // 让输入框保持聚焦
-  chatPanelRef.value?.scrollToBottom(); // 滚动到聊天底部
+  props.chatPanelRef?.scrollToBottom(); // 滚动到聊天底部
 };
 </script>
 
