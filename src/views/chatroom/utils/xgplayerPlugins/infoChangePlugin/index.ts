@@ -15,7 +15,6 @@ class InfoChangePlugin extends BasePlugin {
   }
 
   render() {
-    console.log(1);
     this.overlay = document.createElement("div");
     this.overlay.className = "yo-volume-overlay";
     this.overlay.innerHTML = '<p id="volumeText"></p>';
