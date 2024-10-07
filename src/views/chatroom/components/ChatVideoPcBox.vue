@@ -1,13 +1,46 @@
 <script lang="ts" setup>
 import { onUnmounted, ref, watch } from "vue";
 import { NSpace, NButton, NIcon } from "naive-ui";
-import { Remove, Videocam } from "@vicons/ionicons5";
+import { Remove, Videocam, Folder } from "@vicons/ionicons5";
+import socket from "@/socket";
+import { useChatroomStore } from "@/store";
+import { timeFormat } from "@/utils/timeFormat";
+
+const chatroomStore = useChatroomStore();
 
 const mini = defineModel<boolean>("mini");
+const curVideo = defineModel<string>("curVideo");
 
 const props = defineProps<{
   show: boolean;
 }>();
+
+const selectVideo = () => {
+  const fileIpt = document.createElement("input");
+  fileIpt.type = "file";
+  fileIpt.accept = "video/*";
+  fileIpt.onchange = () => {
+    if (fileIpt.files) {
+      curVideo.value && URL.revokeObjectURL(curVideo.value);
+      const file = fileIpt.files[0];
+      chatroomStore.sending = true;
+      socket.emit("onClientSendMessage", {
+        message: `在观影室中选择了视频 ${file.name}`,
+        type: "userAction"
+      });
+      chatroomStore.chatCache.push({
+        id: Number.MAX_VALUE,
+        clientId: chatroomStore.userInfo.clientId,
+        nickname: chatroomStore.userInfo.nickname,
+        type: "userAction",
+        data: `在观影室中选择了视频 ${file.name}`,
+        time: timeFormat(new Date().getTime(), "YYYY-MM-DD hh:mm:ss")
+      });
+      curVideo.value = URL.createObjectURL(file);
+    }
+  };
+  fileIpt.click();
+};
 
 const boxInfo = ref({
   left: 0,
@@ -373,7 +406,7 @@ onUnmounted(() => {
 <template>
   <div
     class="chat-video-pc"
-    :style="`top:${boxInfo.top}px;left:${boxInfo.left}px;width:${boxInfo.width}px;height:${boxInfo.height}px;transition: all ${positionCache.begin || sizeCache.begin ? '0s' : '0.3s'};`"
+    :style="`--video-top:${boxInfo.top}px;--video-left:${boxInfo.left}px;--video-width:${boxInfo.width}px;--video-height:${boxInfo.height}px;transition: all ${positionCache.begin || sizeCache.begin ? '0s' : '0.3s'};`"
   >
     <div class="top-left"></div>
     <div class="top-center"></div>
@@ -382,6 +415,11 @@ onUnmounted(() => {
     <div class="chat-video-pc--position">
       <div class="chat-video-pc--tools">
         <n-space>
+          <n-button text @click="selectVideo">
+            <n-icon size="20">
+              <Folder />
+            </n-icon>
+          </n-button>
           <n-button text @click="mini = true">
             <n-icon size="30">
               <Remove />
@@ -415,6 +453,10 @@ onUnmounted(() => {
   grid-template-columns: 10px auto 10px;
   grid-template-rows: 10px auto 10px;
   position: fixed;
+  left: var(--video-left);
+  top: var(--video-top);
+  width: var(--video-width);
+  height: var(--video-height);
   z-index: 1;
   border-radius: 10px;
   background-color: #fff;
@@ -503,5 +545,25 @@ onUnmounted(() => {
   position: fixed;
   top: 10px;
   left: 20px;
+}
+
+@media (max-width: 500px) {
+  .chat-video-pc {
+    grid-template-columns: 0 auto 0;
+    grid-template-rows: 0 auto 0;
+    position: static;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+
+    .chat-video-pc--position {
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .chat-video-pc--tools {
+      display: none;
+    }
+  }
 }
 </style>

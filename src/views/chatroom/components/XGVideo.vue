@@ -11,63 +11,38 @@ const props = defineProps<{
 
 watch(
   () => props.curVideo,
-  () => {
-    nextTick(() => {
-      player.value = new Player({
-        id: "mse",
-        url: props.curVideo,
-        height: "100%",
-        width: "100%",
-        lang: "zh",
-        cssFullscreen: false,
-        volume: 1,
+  (newValue) => {
+    if (newValue) {
+      nextTick(() => {
+        player.value = new Player({
+          id: "mse",
+          url: newValue,
+          height: "100%",
+          width: "100%",
+          lang: "zh",
+          cssFullscreen: false,
+          volume: 1
+        });
       });
-    });
-  }
+    }
+  },
+  { immediate: true }
 );
 </script>
 
 <template>
-  <div class="video_box1">
-    <div class="video_box2">
-      <div class="video" id="mse" v-if="curVideo"></div>
-      <div class="video" id="block" v-else>请先选择视频</div>
-    </div>
-  </div>
+  <div class="video" id="mse" v-if="curVideo"></div>
+  <div class="video" id="block" v-else>请先选择视频</div>
 </template>
 
 <style lang="scss" scoped>
-.video_box1 {
-  width: 65%;
-}
-
-.video_box2 {
+#block {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  background-color: #000;
   width: 100%;
-  padding-bottom: 56.25%;
-  height: 0;
-  position: relative;
-  box-sizing: border-box;
-
-  .video {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-
-  #block {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    background-color: #000;
-    width: 100%;
-    height: 100%;
-  }
-}
-
-@media (max-width: 500px) {
-  .video_box1 {
-    width: 100%;
-  }
+  height: 100%;
 }
 </style>
