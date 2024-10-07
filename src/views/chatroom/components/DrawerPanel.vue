@@ -87,7 +87,9 @@ onUnmounted(() => {
               <n-button @click="openVideo">
                 {{ showVideo?.showVideo.value ? "关闭" : "打开" }}观影室
               </n-button>
-              <n-button @click="openVideoLog">让我看看观影室里有什么动静</n-button>
+              <n-button @click="openVideoLog">
+                {{ showVideoLog?.showVideoLog.value ? "哇快关掉快关掉吵得受不了" : "让我看看观影室里有什么动静" }}
+              </n-button>
               <n-button @click="clearVideoCache" v-if="drawerWidth === 500">
                 什么？你说你找不到视频框了
               </n-button>
