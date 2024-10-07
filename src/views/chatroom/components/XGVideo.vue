@@ -1,7 +1,12 @@
 <script lang="ts" setup>
 import { ref, nextTick, watch } from "vue";
-import Player from "xgplayer";
+import { useMessage } from "naive-ui";
+import Player, { Events } from "xgplayer";
 import "xgplayer/dist/index.min.css";
+import InfoChangePlugin from "../utils/xgplayerPlugins/infoChangePlugin";
+import "../utils/xgplayerPlugins/infoChangePlugin/index.css";
+
+const message = useMessage();
 
 let player = ref<Player>();
 
@@ -13,6 +18,7 @@ watch(
   () => props.curVideo,
   (newValue) => {
     if (newValue) {
+      if (player.value) player.value.destroy();
       nextTick(() => {
         player.value = new Player({
           id: "mse",
@@ -21,13 +27,26 @@ watch(
           width: "100%",
           lang: "zh",
           cssFullscreen: false,
-          volume: 1
+          volume: 1,
+          plugins: [InfoChangePlugin]
         });
+        playerListener(player.value);
       });
+    } else {
+      if (player.value) player.value.destroy();
     }
   },
   { immediate: true }
 );
+
+// 挂载player工具
+const playerListener = (player: Player) => {
+  player.on(Events.USER_ACTION, (e) => {
+    message.success(e.action, {
+      showIcon: false
+    });
+  });
+};
 </script>
 
 <template>
